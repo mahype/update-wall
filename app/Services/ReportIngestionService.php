@@ -53,7 +53,7 @@ class ReportIngestionService
                     $inserts = array_map(fn ($u) => [
                         'checker_result_id' => $checker->id,
                         'name' => $u['name'],
-                        'current_version' => $u['current_version'],
+                        'current_version' => $u['current_version'] ?? null,
                         'new_version' => $u['new_version'],
                         'type' => $u['type'],
                         'priority' => $u['priority'],

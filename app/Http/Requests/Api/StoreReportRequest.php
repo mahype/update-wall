@@ -25,7 +25,7 @@ class StoreReportRequest extends FormRequest
             'checkers.*.update_hint' => 'nullable|string',
             'checkers.*.updates' => 'nullable|array',
             'checkers.*.updates.*.name' => 'required|string|max:255',
-            'checkers.*.updates.*.current_version' => 'required|string|max:100',
+            'checkers.*.updates.*.current_version' => 'nullable|string|max:100',
             'checkers.*.updates.*.new_version' => 'required|string|max:100',
             'checkers.*.updates.*.type' => 'required|string|in:security,regular,plugin,theme,core,image,distro',
             'checkers.*.updates.*.priority' => 'required|string|in:critical,high,normal,low',

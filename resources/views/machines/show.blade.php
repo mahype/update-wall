@@ -132,7 +132,7 @@
                                             @foreach($checker->packageUpdates as $update)
                                                 <tr class="hover:bg-gray-50">
                                                     <td class="px-6 py-3 text-sm font-medium text-gray-900">{{ $update->name }}</td>
-                                                    <td class="px-6 py-3 text-sm text-gray-500 font-mono">{{ $update->current_version }}</td>
+                                                    <td class="px-6 py-3 text-sm text-gray-500 font-mono">{{ $update->current_version ?? '–' }}</td>
                                                     <td class="px-6 py-3 text-sm text-gray-900 font-mono">{{ $update->new_version }}</td>
                                                     <td class="px-6 py-3"><x-type-badge :type="$update->type" /></td>
                                                     <td class="px-6 py-3"><x-priority-badge :priority="$update->priority" /></td>

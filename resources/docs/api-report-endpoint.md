@@ -44,7 +44,7 @@ Each entry in the `updates` array of a checker:
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `name` | `string` | Yes | Package name (max 255 characters) |
-| `current_version` | `string` | Yes | Currently installed version (max 100 characters) |
+| `current_version` | `string` | No | Currently installed version (max 100 characters). May be empty for checkers that don't report installed versions (e.g. snap, flatpak, macOS). |
 | `new_version` | `string` | Yes | Available new version (max 100 characters) |
 | `type` | `string` | Yes | Update type (see below) |
 | `priority` | `string` | Yes | Priority (see below) |
