@@ -34,10 +34,13 @@
                             <td class="px-6 py-4 text-sm text-gray-500">
                                 {{ $machine->last_report_at ? $machine->last_report_at->diffForHumans() : '-' }}
                             </td>
-                            <td class="px-6 py-4 text-right text-sm">
+                            <td class="px-6 py-4 text-right text-sm space-x-2">
+                                <a href="{{ route('machines.show', $machine) }}"
+                                   class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition">Details</a>
                                 <form method="POST" action="{{ route('admin.machines.destroy', $machine) }}" class="inline">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-800 font-medium"
+                                    <button type="submit"
+                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition"
                                             onclick="return confirm('Maschine und alle Reports löschen?')">Löschen</button>
                                 </form>
                             </td>

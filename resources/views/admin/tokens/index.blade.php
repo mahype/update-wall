@@ -67,13 +67,15 @@
                                 @if(!$token->revoked_at)
                                     <form method="POST" action="{{ route('admin.tokens.revoke', $token) }}" class="inline">
                                         @csrf
-                                        <button type="submit" class="text-yellow-600 hover:text-yellow-800 font-medium"
+                                        <button type="submit"
+                                                class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-yellow-200 bg-yellow-50 text-yellow-700 hover:bg-yellow-100 transition"
                                                 onclick="return confirm('Token wirklich widerrufen?')">Widerrufen</button>
                                     </form>
                                 @endif
                                 <form method="POST" action="{{ route('admin.tokens.destroy', $token) }}" class="inline">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-800 font-medium"
+                                    <button type="submit"
+                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition"
                                             onclick="return confirm('Token unwiderruflich löschen?')">Löschen</button>
                                 </form>
                             </td>
