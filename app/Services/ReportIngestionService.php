@@ -9,16 +9,25 @@ use App\Models\PackageUpdate;
 use App\Models\Report;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ReportIngestionService
 {
-    public function ingest(array $data, ApiToken $apiToken): Report
+    public function ingest(array $data, ApiToken $apiToken): array
     {
         return DB::transaction(function () use ($data, $apiToken) {
             $machine = Machine::firstOrCreate(
                 ['hostname' => $data['hostname']],
                 ['api_token_id' => $apiToken->id]
             );
+
+            if ($machine->wasRecentlyCreated) {
+                Log::info('New machine registered', ['hostname' => $machine->hostname, 'id' => $machine->id]);
+            } else {
+                Log::debug('Report received for existing machine', ['hostname' => $machine->hostname, 'id' => $machine->id]);
+            }
+
+            $isNewMachine = $machine->wasRecentlyCreated;
 
             $report = $machine->reports()->create([
                 'reported_at' => Carbon::parse($data['timestamp']),
@@ -58,7 +67,7 @@ class ReportIngestionService
 
             $this->updateMachineStatus($machine, $data);
 
-            return $report;
+            return ['report' => $report, 'is_new_machine' => $isNewMachine];
         });
     }
 

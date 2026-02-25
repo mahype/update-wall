@@ -52,6 +52,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('docs', [Admin\DocumentationController::class, 'index'])->name('docs.index');
         Route::get('docs/{slug}', [Admin\DocumentationController::class, 'show'])->name('docs.show');
 
+        // API Request Logs
+        Route::get('logs', [Admin\LogController::class, 'index'])->name('logs.index');
+        Route::get('logs/{log}', [Admin\LogController::class, 'show'])->name('logs.show');
+
         // Settings
         Route::get('settings', [Admin\SettingsController::class, 'index'])->name('settings.index');
         Route::put('settings', [Admin\SettingsController::class, 'update'])->name('settings.update');
