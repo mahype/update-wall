@@ -7,16 +7,16 @@
                 @csrf
                 @method('PUT')
 
-                <div class="space-y-6">
+                <div class="space-y-6" x-data="{ enabled: {{ $notificationsEnabled ? 'true' : 'false' }} }">
                     {{-- Global enable toggle --}}
                     <div>
                         <h3 class="text-sm font-semibold text-gray-700 mb-3">Browser-Benachrichtigungen</h3>
                         <div class="flex items-center">
                             <input type="checkbox" name="notifications_enabled" id="notifications_enabled"
-                                   value="1" {{ $notificationsEnabled ? 'checked' : '' }}
+                                   value="1" x-model="enabled"
                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
                             <label for="notifications_enabled" class="ml-2 text-sm text-gray-700">
-                                Benachrichtigungen global aktivieren
+                                Browser-Benachrichtigungen aktivieren
                             </label>
                         </div>
                         <p class="mt-1 text-xs text-gray-500">
@@ -25,7 +25,7 @@
                     </div>
 
                     {{-- Per-status toggles --}}
-                    <div>
+                    <div :class="{ 'opacity-40 pointer-events-none': !enabled }">
                         <h3 class="text-sm font-semibold text-gray-700 mb-1">Benachrichtigen bei Status</h3>
                         <p class="text-xs text-gray-500 mb-3">
                             Wähle aus, bei welchen Statusänderungen eine Benachrichtigung ausgelöst werden soll.
@@ -42,6 +42,7 @@
                                         <input type="checkbox" name="notify_statuses[]"
                                                id="status_{{ $value }}" value="{{ $value }}"
                                                {{ in_array($value, $notifyStatuses) ? 'checked' : '' }}
+                                               :disabled="!enabled"
                                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
                                     </div>
                                     <div class="ml-2">
