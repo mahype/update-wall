@@ -1,113 +1,113 @@
 # Update Wall
 
-Web-Dashboard zur Überwachung von Updates auf Servern und Maschinen. Empfängt Daten von [Update Watcher](https://github.com/mahype/update-watcher)-Clients über eine REST-API und zeigt den Status aller Maschinen in einer übersichtlichen Oberfläche.
+Web dashboard for monitoring updates on servers and machines. Receives data from [Update Watcher](https://github.com/mahype/update-watcher) clients via a REST API and displays the status of all machines in a clear overview.
 
 ## Features
 
-- **Dashboard** mit Farbkodierung nach Update-Status (grün/gelb/rot)
-- **Maschinen-Detailansicht** mit Checker-Akkordeon und historischen Reports
-- **REST-API** `POST /api/v1/report` mit Bearer-Token-Authentifizierung
-- **Admin-Panel** — Benutzer-, Token- und Maschinen-Verwaltung
-- **API-Dokumentation** im Admin-Bereich (Markdown-basiert, mit Kopier-Funktion)
-- **Scheduled Tasks** — Stale-Erkennung und automatische Report-Bereinigung
+- **Dashboard** with color coding by update status (green/yellow/red)
+- **Machine detail view** with checker accordion and historical reports
+- **REST API** `POST /api/v1/report` with Bearer token authentication
+- **Admin panel** — user, token, and machine management
+- **API documentation** in the admin area (Markdown-based, with copy function)
+- **Scheduled tasks** — stale detection and automatic report cleanup
 
-## Tech-Stack
+## Tech Stack
 
-| Komponente | Technologie |
+| Component | Technology |
 |---|---|
 | Backend | Laravel 12, PHP 8.2+ |
-| Datenbank | SQLite |
+| Database | SQLite |
 | Frontend | Blade + Tailwind CSS 3 + Alpine.js 3 |
-| Auth | Laravel Breeze (Blade-Stack) |
+| Auth | Laravel Breeze (Blade stack) |
 | Markdown | league/commonmark + @tailwindcss/typography |
 
-## Voraussetzungen
+## Requirements
 
-- PHP >= 8.2 mit den Erweiterungen: BCMath, Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
+- PHP >= 8.2 with extensions: BCMath, Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
 - Composer
 - Node.js >= 18 + npm
 
 ## Installation
 
 ```bash
-# Repository klonen
-git clone https://github.com/DEIN-USER/update-wall.git
+# Clone the repository
+git clone https://github.com/mahype/update-wall.git
 cd update-wall
 
-# PHP-Abhängigkeiten installieren
+# Install PHP dependencies
 composer install
 
-# Node-Abhängigkeiten installieren und Assets bauen
+# Install Node dependencies and build assets
 npm install && npm run build
 
-# Umgebungsdatei erstellen
+# Create environment file
 cp .env.example .env
-# APP_URL in .env anpassen
+# Adjust APP_URL in .env
 ```
 
-Dann den Dev-Server starten:
+Then start the dev server:
 
 ```bash
 php artisan serve
 ```
 
-Im Browser `/install` aufrufen → Formular ausfüllen → fertig.
+Open `/install` in the browser, fill out the form, and you're done.
 
-## Demo-Daten (optional)
+## Demo Data (optional)
 
-Erst `/install` abschließen, dann:
+Complete `/install` first, then:
 
 ```bash
 php artisan db:seed
 ```
 
-Erstellt einen Admin-Benutzer (`admin@example.com` / `password`), einen Demo-API-Token und 5 Beispiel-Maschinen mit verschiedenen Status.
+Creates an admin user (`admin@example.com` / `password`), a demo API token, and 5 sample machines with various statuses.
 
-## Entwicklung
+## Development
 
 ```bash
-# Dev-Server starten
+# Start dev server
 php artisan serve
 
-# Vite-Dev-Server (Hot-Reload)
+# Vite dev server (hot reload)
 npm run dev
 ```
 
-## Produktion / Shared Hosting
+## Production / Shared Hosting
 
 ```bash
-# Assets für Produktion bauen (public/build/ wird committet)
+# Build assets for production (public/build/ is committed)
 npm run build
 ```
 
-`.env` anpassen:
+Adjust `.env`:
 
 ```
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://ihre-domain.de
+APP_URL=https://your-domain.com
 ```
 
-Dann im Browser `/install` aufrufen → Formular ausfüllen → fertig.
+Then open `/install` in the browser, fill out the form, and you're done.
 
-### Cron-Job einrichten
+### Set Up Cron Job
 
 ```
-* * * * * cd /pfad/zum/projekt && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /path/to/project && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-Geplante Tasks:
-- `machines:mark-stale` — Alle 15 Min: Maschinen ohne Report seit 25h als "stale" markieren
-- `reports:prune --days=90` — Täglich: Alte Reports löschen (letzten Report pro Maschine behalten)
+Scheduled tasks:
+- `machines:mark-stale` — Every 15 min: mark machines without a report for 25h as "stale"
+- `reports:prune --days=90` — Daily: delete old reports (keep the latest report per machine)
 
 ## API
 
-### Report senden
+### Send Report
 
 ```bash
-curl -X POST https://ihre-domain.de/api/v1/report \
+curl -X POST https://your-domain.com/api/v1/report \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer IHR-API-TOKEN" \
+  -H "Authorization: Bearer YOUR-API-TOKEN" \
   -d '{
     "hostname": "webserver-prod",
     "timestamp": "2026-02-25T10:15:00Z",
@@ -127,15 +127,15 @@ curl -X POST https://ihre-domain.de/api/v1/report \
   }'
 ```
 
-API-Tokens werden im Admin-Bereich unter **API-Tokens** erstellt. Die vollständige API-Dokumentation ist im Admin-Panel unter **API-Doku** einsehbar.
+API tokens are created in the admin panel under **API Tokens**. The full API documentation is available in the admin panel under **API Docs**.
 
-## Artisan-Commands
+## Artisan Commands
 
-| Command | Beschreibung |
+| Command | Description |
 |---|---|
-| `php artisan machines:mark-stale --hours=25` | Inaktive Maschinen als "stale" markieren |
-| `php artisan reports:prune --days=90` | Alte Reports bereinigen |
+| `php artisan machines:mark-stale --hours=25` | Mark inactive machines as "stale" |
+| `php artisan reports:prune --days=90` | Clean up old reports |
 
-## Lizenz
+## License
 
 MIT

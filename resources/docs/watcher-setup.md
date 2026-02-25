@@ -1,85 +1,86 @@
 ---
-title: Watcher einrichten
+title: Watcher Setup
 order: 3
 ---
 
-# Update Watcher einrichten
+# Setting Up the Update Watcher
 
-Der [Update Watcher](https://github.com/mahype/update-watcher) ist ein Tool, das regelmäßig prüft, ob Updates für Ihre Systeme verfügbar sind, und die Ergebnisse an das Update Wall Dashboard sendet.
+The [Update Watcher](https://github.com/mahype/update-watcher) is a tool that periodically checks whether updates are available for your systems and sends the results to the Update Wall dashboard.
 
-## Voraussetzungen
+## Prerequisites
 
-- Update Watcher installiert ([GitHub Repository](https://github.com/mahype/update-watcher))
-- Ein gültiger API-Token (im Admin-Bereich unter **API-Tokens** erstellen)
-- Netzwerkzugriff auf die Update Wall URL
+- Update Watcher installed ([GitHub Repository](https://github.com/mahype/update-watcher))
+- A valid API token (create one in the admin panel under **API Tokens**)
+- Network access to the Update Wall URL
 
-## Konfiguration
+## Configuration
 
-### 1. API-Token erstellen
+### 1. Create an API Token
 
-1. Melden Sie sich als Administrator an
-2. Navigieren Sie zu **API-Tokens** in der Sidebar
-3. Klicken Sie auf **Token erstellen**
-4. Vergeben Sie einen aussagekräftigen Namen (z.B. "Webserver Prod")
-5. Optional: Setzen Sie ein Ablaufdatum
-6. **Wichtig:** Kopieren Sie den angezeigten Token sofort — er wird nur einmal angezeigt!
+1. Log in as an administrator
+2. Navigate to **API Tokens** in the sidebar
+3. Click **Create Token**
+4. Choose a descriptive name (e.g. "Webserver Prod")
+5. Optional: Set an expiration date
+6. **Important:** Copy the displayed token immediately — it is only shown once!
 
-### 2. Webhook-URL konfigurieren
+### 2. Configure the Webhook URL
 
-Tragen Sie in der Konfiguration des Update Watchers die Webhook-URL ein:
-
-```
-https://ihre-domain.de/api/v1/report
-```
-
-### 3. Authentifizierung konfigurieren
-
-Der API-Token muss als Bearer Token im Authorization-Header gesendet werden:
+Enter the webhook URL in your Update Watcher configuration:
 
 ```
-Authorization: Bearer <IHR-API-TOKEN>
+https://your-domain.com/api/v1/report
 ```
 
-### 4. Konfigurationsbeispiel
+### 3. Configure Authentication
 
-Je nach Update Watcher-Version kann die Konfiguration unterschiedlich aussehen. Hier ein allgemeines Beispiel:
+The API token must be sent as a Bearer token in the Authorization header:
+
+```
+Authorization: Bearer <YOUR-API-TOKEN>
+```
+
+### 4. Configuration Example
+
+Depending on the Update Watcher version, the configuration may vary. Here is a general example:
 
 ```json
 {
     "webhook": {
-        "url": "https://ihre-domain.de/api/v1/report",
+        "url": "https://your-domain.com/api/v1/report",
         "method": "POST",
         "headers": {
-            "Authorization": "Bearer IHR-API-TOKEN-HIER",
+            "Authorization": "Bearer YOUR-API-TOKEN-HERE",
             "Content-Type": "application/json"
         }
     }
 }
 ```
 
-## Testen der Verbindung
+## Testing the Connection
 
-Überprüfen Sie die Verbindung mit einem manuellen curl-Aufruf:
+Verify the connection with a manual curl request:
 
 ```bash
-curl -X POST https://ihre-domain.de/api/v1/report \
+curl -X POST https://your-domain.com/api/v1/report \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer IHR-API-TOKEN" \
+  -H "Authorization: Bearer YOUR-API-TOKEN" \
   -d '{
-    "hostname": "test-maschine",
+    "hostname": "test-machine",
     "timestamp": "2026-02-25T12:00:00Z",
     "total_updates": 0,
     "has_security": false,
     "checkers": [
       {
         "name": "apt",
-        "summary": "System is up to date"
+        "summary": "System is up to date",
+        "update_hint": "sudo apt upgrade"
       }
     ]
   }'
 ```
 
-**Erwartete Antwort:**
+**Expected response:**
 
 ```json
 {
@@ -89,27 +90,27 @@ curl -X POST https://ihre-domain.de/api/v1/report \
 }
 ```
 
-## Fehlerbehebung
+## Troubleshooting
 
 ### 401 Unauthorized
 
-- Prüfen Sie, ob der Token korrekt kopiert wurde
-- Stellen Sie sicher, dass der Token nicht widerrufen oder abgelaufen ist
-- Der Header muss exakt `Authorization: Bearer <TOKEN>` lauten
+- Check that the token was copied correctly
+- Make sure the token has not been revoked or expired
+- The header must be exactly `Authorization: Bearer <TOKEN>`
 
 ### 422 Validation Error
 
-- Prüfen Sie, ob alle Pflichtfelder vorhanden sind (`hostname`, `timestamp`, `total_updates`, `has_security`, `checkers`)
-- Stellen Sie sicher, dass `checkers` mindestens einen Eintrag enthält
-- Überprüfen Sie die erlaubten Werte für `type` und `priority`
+- Check that all required fields are present (`hostname`, `timestamp`, `total_updates`, `has_security`, `checkers`)
+- Make sure `checkers` contains at least one entry
+- Verify the allowed values for `type` and `priority`
 
 ### 429 Too Many Requests
 
-- Die API ist auf 60 Anfragen pro Minute limitiert
-- Warten Sie einen Moment und versuchen Sie es erneut
+- The API is limited to 60 requests per minute
+- Wait a moment and try again
 
-### Verbindungsfehler
+### Connection Error
 
-- Überprüfen Sie die URL (inklusive `/api/v1/report`)
-- Stellen Sie sicher, dass HTTPS korrekt konfiguriert ist
-- Prüfen Sie Firewall-Regeln
+- Verify the URL (including `/api/v1/report`)
+- Make sure HTTPS is correctly configured
+- Check firewall rules

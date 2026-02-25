@@ -1,82 +1,83 @@
 ---
-title: Report-Endpunkt
+title: Report Endpoint
 order: 2
 ---
 
 # POST /api/v1/report
 
-Sendet einen Update-Bericht für eine Maschine an das Dashboard. Falls die Maschine noch nicht existiert, wird sie automatisch anhand des `hostname` angelegt.
+Sends an update report for a machine to the dashboard. If the machine does not yet exist, it is automatically created based on the `hostname`.
 
 ## Request
 
 ```
 POST /api/v1/report
 Content-Type: application/json
-Authorization: Bearer <IHR-API-TOKEN>
+Authorization: Bearer <YOUR-API-TOKEN>
 ```
 
-### Pflichtfelder
+### Required Fields
 
-| Feld | Typ | Beschreibung |
+| Field | Type | Description |
 |---|---|---|
-| `hostname` | `string` | Eindeutiger Hostname der Maschine (max. 255 Zeichen) |
-| `timestamp` | `string` | Zeitstempel des Reports (ISO 8601, z.B. `2026-02-25T10:15:00Z`) |
-| `total_updates` | `integer` | Gesamtanzahl verfügbarer Updates (>= 0) |
-| `has_security` | `boolean` | Ob sicherheitskritische Updates vorhanden sind |
-| `checkers` | `array` | Array von Checker-Ergebnissen (mindestens 1) |
+| `hostname` | `string` | Unique hostname of the machine (max 255 characters) |
+| `timestamp` | `string` | Report timestamp (ISO 8601, e.g. `2026-02-25T10:15:00Z`) |
+| `total_updates` | `integer` | Total number of available updates (>= 0) |
+| `has_security` | `boolean` | Whether security-critical updates are available |
+| `checkers` | `array` | Array of checker results (at least 1) |
 
-### Checker-Objekt
+### Checker Object
 
-Jeder Eintrag im `checkers`-Array beschreibt einen Update-Checker (z.B. apt, npm, docker):
+Each entry in the `checkers` array describes an update checker (e.g. apt, npm, docker):
 
-| Feld | Typ | Pflicht | Beschreibung |
+| Field | Type | Required | Description |
 |---|---|---|---|
-| `name` | `string` | Ja | Name des Checkers (max. 100 Zeichen) |
-| `summary` | `string` | Ja | Zusammenfassung des Ergebnisses |
-| `error` | `string` | Nein | Fehlermeldung, falls der Check fehlgeschlagen ist |
-| `updates` | `array` | Nein | Array von verfügbaren Updates |
+| `name` | `string` | Yes | Name of the checker (max 100 characters) |
+| `summary` | `string` | Yes | Summary of the result |
+| `error` | `string` | No | Error message if the check failed |
+| `update_hint` | `string` | No | Optional command to perform the updates (e.g. `sudo apt upgrade`) |
+| `updates` | `array` | No | Array of available updates |
 
-### Update-Objekt
+### Update Object
 
-Jeder Eintrag im `updates`-Array eines Checkers:
+Each entry in the `updates` array of a checker:
 
-| Feld | Typ | Pflicht | Beschreibung |
+| Field | Type | Required | Description |
 |---|---|---|---|
-| `name` | `string` | Ja | Paketname (max. 255 Zeichen) |
-| `current_version` | `string` | Ja | Aktuell installierte Version (max. 100 Zeichen) |
-| `new_version` | `string` | Ja | Verfügbare neue Version (max. 100 Zeichen) |
-| `type` | `string` | Ja | Update-Typ (siehe unten) |
-| `priority` | `string` | Ja | Priorität (siehe unten) |
-| `source` | `string` | Nein | Quelle des Updates (max. 255 Zeichen) |
-| `phasing` | `string` | Nein | Phasing-Information (max. 100 Zeichen) |
+| `name` | `string` | Yes | Package name (max 255 characters) |
+| `current_version` | `string` | Yes | Currently installed version (max 100 characters) |
+| `new_version` | `string` | Yes | Available new version (max 100 characters) |
+| `type` | `string` | Yes | Update type (see below) |
+| `priority` | `string` | Yes | Priority (see below) |
+| `source` | `string` | No | Source of the update (max 255 characters) |
+| `phasing` | `string` | No | Phasing information (max 100 characters) |
 
-### Erlaubte Werte für `type`
+### Allowed Values for `type`
 
-| Wert | Beschreibung |
+| Value | Description |
 |---|---|
-| `security` | Sicherheitsupdate |
-| `regular` | Reguläres Update |
-| `plugin` | Plugin-Update (z.B. WordPress) |
-| `theme` | Theme-Update |
-| `core` | Core-Update (z.B. WordPress-Core) |
-| `image` | Container-Image-Update |
-| `distro` | Distributions-Update |
+| `security` | Security update |
+| `regular` | Regular update |
+| `plugin` | Plugin update (e.g. WordPress) |
+| `theme` | Theme update |
+| `core` | Core update (e.g. WordPress core) |
+| `image` | Container image update |
+| `distro` | Distribution update |
 
-### Erlaubte Werte für `priority`
+### Allowed Values for `priority`
 
-| Wert | Beschreibung |
+| Value | Description |
 |---|---|
-| `critical` | Kritisch — sofortige Aufmerksamkeit erforderlich |
-| `high` | Hoch — zeitnah aktualisieren |
-| `normal` | Normal — reguläres Update |
-| `low` | Niedrig — kann bei Gelegenheit aktualisiert werden |
+| `critical` | Critical — immediate attention required |
+| `high` | High — update soon |
+| `normal` | Normal — regular update |
+| `low` | Low — can be updated at your convenience |
 
-## Beispiel-Request
+## Example Request
 
 ```bash
-curl -X POST https://ihre-domain.de/api/v1/report \
+curl -X POST https://your-domain.com/api/v1/report \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer IHR-API-TOKEN" \
+  -H "Authorization: Bearer YOUR-API-TOKEN" \
   -d '{
     "hostname": "webserver-prod",
     "timestamp": "2026-02-25T10:15:00Z",
@@ -86,6 +87,7 @@ curl -X POST https://ihre-domain.de/api/v1/report \
       {
         "name": "apt",
         "summary": "3 updates available",
+        "update_hint": "sudo apt upgrade",
         "updates": [
           {
             "name": "libssl3",
@@ -114,7 +116,7 @@ curl -X POST https://ihre-domain.de/api/v1/report \
   }'
 ```
 
-## Erfolgreiche Antwort
+## Successful Response
 
 **Status:** `201 Created`
 
@@ -126,18 +128,18 @@ curl -X POST https://ihre-domain.de/api/v1/report \
 }
 ```
 
-| Feld | Typ | Beschreibung |
+| Field | Type | Description |
 |---|---|---|
-| `status` | `string` | Immer `"ok"` bei Erfolg |
-| `report_id` | `integer` | ID des erstellten Reports |
-| `machine_id` | `integer` | ID der Maschine (neu erstellt oder bestehend) |
+| `status` | `string` | Always `"ok"` on success |
+| `report_id` | `integer` | ID of the created report |
+| `machine_id` | `integer` | ID of the machine (newly created or existing) |
 
-## Verhalten
+## Behavior
 
-- **Neue Maschine:** Wird automatisch anhand des `hostname` erstellt und dem API-Token zugeordnet.
-- **Bestehende Maschine:** Der Report wird der existierenden Maschine hinzugefügt.
-- **Status-Berechnung:** Nach dem Speichern wird der Maschinen-Status automatisch aktualisiert:
-  - `has_security: true` → Status **Security** (rot)
-  - `total_updates > 0` → Status **Updates** (gelb)
-  - `total_updates == 0` → Status **OK** (grün)
-- **Stale-Erkennung:** Maschinen ohne Report innerhalb von 25 Stunden werden automatisch als **Stale** markiert.
+- **New machine:** Automatically created based on the `hostname` and associated with the API token.
+- **Existing machine:** The report is added to the existing machine.
+- **Status calculation:** After saving, the machine status is automatically updated:
+  - `has_security: true` → Status **Security** (red)
+  - `total_updates > 0` → Status **Updates** (yellow)
+  - `total_updates == 0` → Status **OK** (green)
+- **Stale detection:** Machines without a report within 25 hours are automatically marked as **Stale**.

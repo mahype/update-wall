@@ -1,45 +1,45 @@
 ---
-title: API-Übersicht
+title: API Overview
 order: 1
 ---
 
-# API-Übersicht
+# API Overview
 
-Die Update Wall API ermöglicht es [Update Watcher](https://github.com/mahype/update-watcher)-Clients, Update-Berichte an das Dashboard zu senden. Die API ist REST-basiert und verwendet JSON als Datenformat.
+The Update Wall API allows [Update Watcher](https://github.com/mahype/update-watcher) clients to send update reports to the dashboard. The API is REST-based and uses JSON as the data format.
 
-## Base-URL
-
-```
-https://ihre-domain.de/api/v1
-```
-
-## Authentifizierung
-
-Alle API-Anfragen müssen mit einem **Bearer Token** im `Authorization`-Header authentifiziert werden:
+## Base URL
 
 ```
-Authorization: Bearer <IHR-API-TOKEN>
+https://your-domain.com/api/v1
 ```
 
-API-Tokens werden im Admin-Bereich unter **API-Tokens** erstellt. Der Klartext-Token wird **nur einmalig** nach der Erstellung angezeigt — kopieren Sie ihn sofort und bewahren Sie ihn sicher auf.
+## Authentication
 
-### Token-Eigenschaften
+All API requests must be authenticated with a **Bearer Token** in the `Authorization` header:
 
-| Eigenschaft | Beschreibung |
+```
+Authorization: Bearer <YOUR-API-TOKEN>
+```
+
+API tokens are created in the admin panel under **API Tokens**. The plain-text token is displayed **only once** after creation — copy it immediately and store it securely.
+
+### Token Properties
+
+| Property | Description |
 |---|---|
-| Speicherung | SHA-256-Hash in der Datenbank (Klartext wird nicht gespeichert) |
-| Ablaufdatum | Optional, kann beim Erstellen gesetzt werden |
-| Widerruf | Tokens können jederzeit im Admin-Bereich widerrufen werden |
+| Storage | SHA-256 hash in the database (plain text is not stored) |
+| Expiration | Optional, can be set during creation |
+| Revocation | Tokens can be revoked at any time in the admin panel |
 
-## Rate-Limiting
+## Rate Limiting
 
-Die API ist standardmäßig auf **60 Anfragen pro Minute** pro IP-Adresse begrenzt. Bei Überschreitung erhalten Sie einen `429 Too Many Requests`-Fehler.
+The API is limited to **60 requests per minute** per IP address by default. If exceeded, you will receive a `429 Too Many Requests` error.
 
-## Fehler-Antworten
+## Error Responses
 
-Die API gibt Fehler im folgenden Format zurück:
+The API returns errors in the following format:
 
-### 401 Unauthorized — Ungültiger oder fehlender Token
+### 401 Unauthorized — Invalid or missing token
 
 ```json
 {
@@ -47,7 +47,7 @@ Die API gibt Fehler im folgenden Format zurück:
 }
 ```
 
-### 422 Unprocessable Entity — Validierungsfehler
+### 422 Unprocessable Entity — Validation error
 
 ```json
 {
@@ -59,7 +59,7 @@ Die API gibt Fehler im folgenden Format zurück:
 }
 ```
 
-### 429 Too Many Requests — Rate-Limit überschritten
+### 429 Too Many Requests — Rate limit exceeded
 
 ```json
 {
@@ -67,10 +67,10 @@ Die API gibt Fehler im folgenden Format zurück:
 }
 ```
 
-## Verfügbare Endpunkte
+## Available Endpoints
 
-| Methode | Pfad | Beschreibung |
+| Method | Path | Description |
 |---|---|---|
-| `POST` | `/api/v1/report` | Update-Bericht senden |
+| `POST` | `/api/v1/report` | Send an update report |
 
-Details zum Report-Endpunkt finden Sie unter [Report-Endpunkt](/admin/docs/api-report-endpoint).
+For details on the report endpoint, see [Report Endpoint](/admin/docs/api-report-endpoint).
