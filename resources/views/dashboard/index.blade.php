@@ -1,6 +1,34 @@
 <x-app-layout>
     <x-slot name="header">Dashboard</x-slot>
 
+    {{-- Browser Notification Banner --}}
+    @if(\App\Models\Setting::get(\App\Models\Setting::NOTIFICATIONS_ENABLED, '1') === '1')
+        <div x-data="notifications(window.__notifSettings)" class="mb-6">
+            <div x-show="canRequest" x-cloak
+                 class="flex items-center justify-between bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-indigo-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                    </svg>
+                    <span class="text-sm text-indigo-800">Benachrichtigungen aktivieren, um bei Statusänderungen informiert zu werden.</span>
+                </div>
+                <button @click="requestPermission()"
+                        class="shrink-0 ml-4 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition">
+                    Aktivieren
+                </button>
+            </div>
+
+            <div x-show="isDenied" x-cloak
+                 class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-600">
+                Browser-Benachrichtigungen wurden blockiert. Bitte in den Browser-Einstellungen freigeben.
+            </div>
+
+            <div x-show="isGranted" x-cloak class="text-xs text-gray-400 text-right">
+                Benachrichtigungen aktiv &mdash; Prüfung alle 5 Minuten
+            </div>
+        </div>
+    @endif
+
     <div x-data="{
         filter: 'all',
         search: '',

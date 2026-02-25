@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\MachineStatus;
 use App\Models\Machine;
+use Illuminate\Http\JsonResponse;
 
 class DashboardController extends Controller
 {
@@ -29,5 +30,19 @@ class DashboardController extends Controller
         ];
 
         return view('dashboard.index', compact('machines', 'counts'));
+    }
+
+    public function status(): JsonResponse
+    {
+        $machines = Machine::select('id', 'hostname', 'display_name', 'status')
+            ->get()
+            ->map(fn ($m) => [
+                'id'           => $m->id,
+                'name'         => $m->display_name ?? $m->hostname,
+                'status'       => $m->status->value,
+                'status_label' => $m->status->label(),
+            ]);
+
+        return response()->json(['machines' => $machines]);
     }
 }

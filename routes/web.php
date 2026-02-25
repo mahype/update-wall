@@ -21,6 +21,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/status', [DashboardController::class, 'status'])->name('dashboard.status');
 
     // Machine detail
     Route::get('/machines/{machine}', [MachineController::class, 'show'])->name('machines.show');
@@ -50,6 +51,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Documentation
         Route::get('docs', [Admin\DocumentationController::class, 'index'])->name('docs.index');
         Route::get('docs/{slug}', [Admin\DocumentationController::class, 'show'])->name('docs.show');
+
+        // Settings
+        Route::get('settings', [Admin\SettingsController::class, 'index'])->name('settings.index');
+        Route::put('settings', [Admin\SettingsController::class, 'update'])->name('settings.update');
     });
 });
 
