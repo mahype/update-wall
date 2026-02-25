@@ -18,6 +18,7 @@ class CheckerResult extends Model
         'name',
         'summary',
         'error',
+        'update_hint',
         'update_count',
         'created_at',
     ];

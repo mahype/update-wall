@@ -22,6 +22,7 @@ class StoreReportRequest extends FormRequest
             'checkers.*.name' => 'required|string|max:100',
             'checkers.*.summary' => 'required|string',
             'checkers.*.error' => 'nullable|string',
+            'checkers.*.update_hint' => 'nullable|string',
             'checkers.*.updates' => 'nullable|array',
             'checkers.*.updates.*.name' => 'required|string|max:255',
             'checkers.*.updates.*.current_version' => 'required|string|max:100',

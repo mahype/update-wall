@@ -108,6 +108,13 @@
                                 </div>
                             @endif
 
+                            @if($checker->update_hint && $checker->update_count > 0)
+                                <div class="px-6 py-3 bg-indigo-50 border-b border-indigo-100">
+                                    <p class="text-xs font-medium text-indigo-600 uppercase mb-1">Update-Befehl</p>
+                                    <code class="block text-sm text-indigo-900 font-mono bg-indigo-100 rounded px-3 py-2 select-all">{{ $checker->update_hint }}</code>
+                                </div>
+                            @endif
+
                             {{-- Package Updates Table --}}
                             @if($checker->packageUpdates->isNotEmpty())
                                 <div class="overflow-x-auto">
