@@ -53,4 +53,15 @@ enum MachineStatus: string
             self::Error => 'bg-red-500',
         };
     }
+
+    public function iconClasses(): string
+    {
+        return match ($this) {
+            self::Ok       => 'text-green-600',
+            self::Updates  => 'text-yellow-600',
+            self::Security => 'text-red-600',
+            self::Stale    => 'text-gray-500',
+            self::Error    => 'text-red-600',
+        };
+    }
 }
