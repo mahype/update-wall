@@ -16,7 +16,7 @@ Web-Dashboard zur Überwachung von Updates auf Servern und Maschinen. Empfängt 
 | Komponente | Technologie |
 |---|---|
 | Backend | Laravel 12, PHP 8.2+ |
-| Datenbank | SQLite (Entwicklung) / MySQL 8+ (Produktion) |
+| Datenbank | SQLite |
 | Frontend | Blade + Tailwind CSS 3 + Alpine.js 3 |
 | Auth | Laravel Breeze (Blade-Stack) |
 | Markdown | league/commonmark + @tailwindcss/typography |
@@ -38,22 +38,24 @@ cd update-wall
 composer install
 
 # Node-Abhängigkeiten installieren und Assets bauen
-npm install
-npm run build
+npm install && npm run build
 
 # Umgebungsdatei erstellen
 cp .env.example .env
-php artisan key:generate
-
-# Datenbank erstellen und migrieren
-touch database/database.sqlite
-php artisan migrate
-
-# Ersten Admin-Benutzer anlegen
-php artisan user:create --admin
+# APP_URL in .env anpassen
 ```
 
+Dann den Dev-Server starten:
+
+```bash
+php artisan serve
+```
+
+Im Browser `/install` aufrufen → Formular ausfüllen → fertig.
+
 ## Demo-Daten (optional)
+
+Erst `/install` abschließen, dann:
 
 ```bash
 php artisan db:seed
@@ -76,23 +78,17 @@ npm run dev
 ```bash
 # Assets für Produktion bauen (public/build/ wird committet)
 npm run build
+```
 
-# .env anpassen
+`.env` anpassen:
+
+```
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://ihre-domain.de
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_DATABASE=update_wall
-DB_USERNAME=ihr_user
-DB_PASSWORD=ihr_passwort
-
-# Migrationen ausführen
-php artisan migrate --force
-
-# Admin-Benutzer erstellen
-php artisan user:create --admin
 ```
+
+Dann im Browser `/install` aufrufen → Formular ausfüllen → fertig.
 
 ### Cron-Job einrichten
 
@@ -137,7 +133,6 @@ API-Tokens werden im Admin-Bereich unter **API-Tokens** erstellt. Die vollständ
 
 | Command | Beschreibung |
 |---|---|
-| `php artisan user:create --admin` | Neuen Benutzer erstellen (interaktiv) |
 | `php artisan machines:mark-stale --hours=25` | Inaktive Maschinen als "stale" markieren |
 | `php artisan reports:prune --days=90` | Alte Reports bereinigen |
 

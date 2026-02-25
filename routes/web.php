@@ -1,11 +1,18 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InstallController;
 use App\Http\Controllers\MachineController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\EnsureIsAdmin;
+use App\Http\Middleware\EnsureNotInstalled;
 use Illuminate\Support\Facades\Route;
+
+Route::middleware(EnsureNotInstalled::class)->group(function () {
+    Route::get('/install', [InstallController::class, 'show'])->name('install.show');
+    Route::post('/install', [InstallController::class, 'store'])->name('install.store');
+});
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
