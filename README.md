@@ -1,59 +1,146 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Update Wall
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Web-Dashboard zur Überwachung von Updates auf Servern und Maschinen. Empfängt Daten von [Update Watcher](https://github.com/mahype/update-watcher)-Clients über eine REST-API und zeigt den Status aller Maschinen in einer übersichtlichen Oberfläche.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Dashboard** mit Farbkodierung nach Update-Status (grün/gelb/rot)
+- **Maschinen-Detailansicht** mit Checker-Akkordeon und historischen Reports
+- **REST-API** `POST /api/v1/report` mit Bearer-Token-Authentifizierung
+- **Admin-Panel** — Benutzer-, Token- und Maschinen-Verwaltung
+- **API-Dokumentation** im Admin-Bereich (Markdown-basiert, mit Kopier-Funktion)
+- **Scheduled Tasks** — Stale-Erkennung und automatische Report-Bereinigung
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech-Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Komponente | Technologie |
+|---|---|
+| Backend | Laravel 12, PHP 8.2+ |
+| Datenbank | SQLite (Entwicklung) / MySQL 8+ (Produktion) |
+| Frontend | Blade + Tailwind CSS 3 + Alpine.js 3 |
+| Auth | Laravel Breeze (Blade-Stack) |
+| Markdown | league/commonmark + @tailwindcss/typography |
 
-## Learning Laravel
+## Voraussetzungen
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- PHP >= 8.2 mit den Erweiterungen: BCMath, Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
+- Composer
+- Node.js >= 18 + npm
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Installation
 
-## Laravel Sponsors
+```bash
+# Repository klonen
+git clone https://github.com/DEIN-USER/update-wall.git
+cd update-wall
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# PHP-Abhängigkeiten installieren
+composer install
 
-### Premium Partners
+# Node-Abhängigkeiten installieren und Assets bauen
+npm install
+npm run build
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# Umgebungsdatei erstellen
+cp .env.example .env
+php artisan key:generate
 
-## Contributing
+# Datenbank erstellen und migrieren
+touch database/database.sqlite
+php artisan migrate
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Ersten Admin-Benutzer anlegen
+php artisan user:create --admin
+```
 
-## Code of Conduct
+## Demo-Daten (optional)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artisan db:seed
+```
 
-## Security Vulnerabilities
+Erstellt einen Admin-Benutzer (`admin@example.com` / `password`), einen Demo-API-Token und 5 Beispiel-Maschinen mit verschiedenen Status.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Entwicklung
 
-## License
+```bash
+# Dev-Server starten
+php artisan serve
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Vite-Dev-Server (Hot-Reload)
+npm run dev
+```
+
+## Produktion / Shared Hosting
+
+```bash
+# Assets für Produktion bauen (public/build/ wird committet)
+npm run build
+
+# .env anpassen
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://ihre-domain.de
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_DATABASE=update_wall
+DB_USERNAME=ihr_user
+DB_PASSWORD=ihr_passwort
+
+# Migrationen ausführen
+php artisan migrate --force
+
+# Admin-Benutzer erstellen
+php artisan user:create --admin
+```
+
+### Cron-Job einrichten
+
+```
+* * * * * cd /pfad/zum/projekt && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Geplante Tasks:
+- `machines:mark-stale` — Alle 15 Min: Maschinen ohne Report seit 25h als "stale" markieren
+- `reports:prune --days=90` — Täglich: Alte Reports löschen (letzten Report pro Maschine behalten)
+
+## API
+
+### Report senden
+
+```bash
+curl -X POST https://ihre-domain.de/api/v1/report \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer IHR-API-TOKEN" \
+  -d '{
+    "hostname": "webserver-prod",
+    "timestamp": "2026-02-25T10:15:00Z",
+    "total_updates": 1,
+    "has_security": true,
+    "checkers": [{
+      "name": "apt",
+      "summary": "1 update available",
+      "updates": [{
+        "name": "libssl3",
+        "current_version": "3.0.2-1",
+        "new_version": "3.0.2-2",
+        "type": "security",
+        "priority": "critical"
+      }]
+    }]
+  }'
+```
+
+API-Tokens werden im Admin-Bereich unter **API-Tokens** erstellt. Die vollständige API-Dokumentation ist im Admin-Panel unter **API-Doku** einsehbar.
+
+## Artisan-Commands
+
+| Command | Beschreibung |
+|---|---|
+| `php artisan user:create --admin` | Neuen Benutzer erstellen (interaktiv) |
+| `php artisan machines:mark-stale --hours=25` | Inaktive Maschinen als "stale" markieren |
+| `php artisan reports:prune --days=90` | Alte Reports bereinigen |
+
+## Lizenz
+
+MIT
