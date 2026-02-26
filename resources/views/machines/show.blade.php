@@ -151,7 +151,7 @@
 
                             {{-- Package Updates Table --}}
                             @if($checker->packageUpdates->isNotEmpty())
-                                <div class="overflow-x-auto">
+                                <div class="overflow-x-auto border-t border-gray-200">
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
                                             <tr>
