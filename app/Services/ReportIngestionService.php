@@ -45,6 +45,7 @@ class ReportIngestionService
                     'summary' => $checkerData['summary'],
                     'error' => $checkerData['error'] ?? null,
                     'update_hint' => $checkerData['update_hint'] ?? null,
+                    'update_command' => $checkerData['update_command'] ?? null,
                     'update_count' => count($updates),
                     'created_at' => now(),
                 ]);

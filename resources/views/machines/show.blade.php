@@ -110,14 +110,48 @@
 
                             @if($checker->update_hint && $checker->update_count > 0)
                                 <div class="px-6 py-3 bg-indigo-50 border-b border-indigo-100">
-                                    <p class="text-xs font-medium text-indigo-600 uppercase mb-1">Update-Befehl</p>
+                                    <p class="text-xs font-medium text-indigo-600 uppercase mb-1">Update-Hinweis</p>
                                     <code class="block text-sm text-indigo-900 font-mono bg-indigo-100 rounded px-3 py-2 select-all">{{ $checker->update_hint }}</code>
+                                </div>
+                            @endif
+
+                            @if($checker->update_command && $checker->update_count > 0)
+                                <div class="px-6 py-3 border-b border-gray-200" x-data="{ copied: false }">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <p class="text-xs font-medium text-gray-500 uppercase">Update-Befehl</p>
+                                        <button @click="navigator.clipboard.writeText(@js($checker->update_command)); copied = true; setTimeout(() => copied = false, 2000)"
+                                                class="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1 transition">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
+                                            </svg>
+                                            <span x-text="copied ? 'Kopiert!' : 'Kopieren'" x-bind:class="copied ? 'text-green-600' : ''"></span>
+                                        </button>
+                                    </div>
+                                    <div class="bg-gray-900 rounded-lg px-4 py-3 overflow-x-auto">
+                                        <code class="text-sm text-green-400 font-mono whitespace-pre">$ {{ $checker->update_command }}</code>
+                                    </div>
                                 </div>
                             @endif
 
                             {{-- Package Updates Table --}}
                             @if($checker->packageUpdates->isNotEmpty())
-                                <div class="overflow-x-auto">
+                                <div class="overflow-x-auto" x-data="{ tableCopied: false }">
+                                    <div class="flex items-center justify-end px-6 pt-2">
+                                        <button @click="
+                                            let lines = ['Paket\tAktuell\tNeu\tTyp\tPriorität'];
+                                            @foreach($checker->packageUpdates as $update)
+                                                lines.push(@js($update->name) + '\t' + @js($update->current_version ?? '–') + '\t' + @js($update->new_version) + '\t' + @js($update->type) + '\t' + @js($update->priority));
+                                            @endforeach
+                                            navigator.clipboard.writeText(lines.join('\n'));
+                                            tableCopied = true;
+                                            setTimeout(() => tableCopied = false, 2000);
+                                        " class="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1 transition">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
+                                            </svg>
+                                            <span x-text="tableCopied ? 'Kopiert!' : 'Tabelle kopieren'" x-bind:class="tableCopied ? 'text-green-600' : ''"></span>
+                                        </button>
+                                    </div>
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
                                             <tr>

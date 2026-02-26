@@ -34,7 +34,8 @@ Each entry in the `checkers` array describes an update checker (e.g. apt, npm, d
 | `name` | `string` | Yes | Name of the checker (max 100 characters) |
 | `summary` | `string` | Yes | Summary of the result |
 | `error` | `string` | No | Error message if the check failed |
-| `update_hint` | `string` | No | Optional command to perform the updates (e.g. `sudo apt upgrade`) |
+| `update_hint` | `string` | No | Optional hint or description about the updates |
+| `update_command` | `string` | No | Optional shell command to perform the updates (e.g. `sudo apt upgrade`). Displayed as a copyable terminal command in the UI. |
 | `updates` | `array` | No | Array of available updates |
 
 ### Update Object
@@ -87,7 +88,8 @@ curl -X POST https://your-domain.com/api/v1/report \
       {
         "name": "apt",
         "summary": "3 updates available",
-        "update_hint": "sudo apt upgrade",
+        "update_hint": "3 packages can be upgraded",
+        "update_command": "sudo apt upgrade -y libssl3 nginx curl",
         "updates": [
           {
             "name": "libssl3",
