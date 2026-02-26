@@ -13,7 +13,7 @@
         <script>
             window.__notifSettings = {
                 enabled: {{ \App\Models\Setting::get(\App\Models\Setting::NOTIFICATIONS_ENABLED, '1') === '1' ? 'true' : 'false' }},
-                statuses: {!! json_encode(\App\Models\Setting::getJson(\App\Models\Setting::NOTIFICATIONS_STATUSES, ['security', 'error'])) !!}
+                statuses: {!! json_encode(\App\Models\Setting::getJson(\App\Models\Setting::NOTIFICATIONS_STATUSES, ['security', 'error', 'updates'])) !!}
             };
         </script>
 

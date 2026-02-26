@@ -11,7 +11,7 @@ class SettingsController extends Controller
     public function index()
     {
         $notificationsEnabled = Setting::get(Setting::NOTIFICATIONS_ENABLED, '1') === '1';
-        $notifyStatuses       = Setting::getJson(Setting::NOTIFICATIONS_STATUSES, ['security', 'error']);
+        $notifyStatuses       = Setting::getJson(Setting::NOTIFICATIONS_STATUSES, ['security', 'error', 'updates']);
 
         return view('admin.settings.index', compact('notificationsEnabled', 'notifyStatuses'));
     }

@@ -31,26 +31,26 @@ Alpine.data('notifications', (settings) => {
             }
         },
 
-        initPolling() {
+        async initPolling() {
             if (!settings.enabled || this.permission !== 'granted') return;
 
-            this.seedIfEmpty();
+            await this.seedIfEmpty();
+            this.poll();
             this._interval = setInterval(() => this.poll(), 5 * 60 * 1000);
         },
 
-        seedIfEmpty() {
+        async seedIfEmpty() {
             if (localStorage.getItem('uw_machine_statuses') !== null) return;
 
-            fetch('/dashboard/status', {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            })
-                .then((r) => r.json())
-                .then((data) => {
-                    const snapshot = {};
-                    data.machines.forEach((m) => (snapshot[m.id] = m.status));
-                    localStorage.setItem('uw_machine_statuses', JSON.stringify(snapshot));
-                })
-                .catch(() => {});
+            try {
+                const response = await fetch('/dashboard/status', {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                const data = await response.json();
+                const snapshot = {};
+                data.machines.forEach((m) => (snapshot[m.id] = m.status));
+                localStorage.setItem('uw_machine_statuses', JSON.stringify(snapshot));
+            } catch (_) {}
         },
 
         async poll() {
