@@ -43,6 +43,77 @@
         </div>
     </div>
 
+    {{-- Tags Section --}}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3">Tags</h3>
+
+        {{-- Current Tags --}}
+        <div class="flex flex-wrap gap-2 mb-4">
+            @forelse($machine->tags as $tag)
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold {{ $tag->badgeClasses() }}">
+                    {{ $tag->name }}
+                    <form method="POST" action="{{ route('machines.tags.detach', $machine) }}" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name="tag_id" value="{{ $tag->id }}">
+                        <button type="submit" class="ml-0.5 hover:opacity-70 leading-none" title="Tag entfernen">&times;</button>
+                    </form>
+                </span>
+            @empty
+                <span class="text-sm text-gray-400">Keine Tags zugewiesen</span>
+            @endforelse
+        </div>
+
+        {{-- Add Existing Tag --}}
+        @php $availableTags = $allTags->diff($machine->tags); @endphp
+        <div class="flex flex-col sm:flex-row gap-3">
+            @if($availableTags->isNotEmpty())
+                <form method="POST" action="{{ route('machines.tags.attach', $machine) }}" class="flex items-center gap-2">
+                    @csrf
+                    <select name="tag_id" class="rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        @foreach($availableTags as $tag)
+                            <option value="{{ $tag->id }}">{{ $tag->name }}</option>
+                        @endforeach
+                    </select>
+                    <button type="submit"
+                            class="px-3 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition">
+                        Zuweisen
+                    </button>
+                </form>
+            @endif
+
+            {{-- Create New Tag (inline) --}}
+            <form method="POST" action="{{ route('tags.store') }}" class="flex items-center gap-2" x-data="{ open: false }">
+                @csrf
+                <input type="hidden" name="redirect" value="{{ route('machines.show', $machine) }}">
+                <button type="button" @click="open = !open"
+                        class="px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+                        x-show="!open">
+                    + Neues Tag
+                </button>
+                <template x-if="open">
+                    <div class="flex items-center gap-2">
+                        <input type="text" name="name" placeholder="Tag-Name" required maxlength="50"
+                               class="w-32 rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select name="color" class="rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            @foreach(['gray' => 'Grau', 'red' => 'Rot', 'yellow' => 'Gelb', 'green' => 'Grün', 'blue' => 'Blau', 'indigo' => 'Indigo', 'purple' => 'Lila', 'pink' => 'Pink'] as $val => $label)
+                                <option value="{{ $val }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <button type="submit"
+                                class="px-3 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition">
+                            Erstellen
+                        </button>
+                        <button type="button" @click="open = false"
+                                class="px-2 py-2 text-sm text-gray-400 hover:text-gray-600">
+                            &times;
+                        </button>
+                    </div>
+                </template>
+            </form>
+        </div>
+    </div>
+
     {{-- Report Selector --}}
     @if($reports->count() > 1)
         <div class="mb-6">

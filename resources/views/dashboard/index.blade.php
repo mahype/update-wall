@@ -29,90 +29,191 @@
         </div>
     @endif
 
-    <div x-data="{
-        filter: 'all',
-        search: '',
-        get filteredMachines() {
-            return this.$refs.machineRows ? Array.from(this.$refs.machineRows.querySelectorAll('tr[data-status]')) : [];
-        }
-    }">
-        {{-- Summary Cards --}}
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-            <x-stat-card label="Gesamt" :value="$counts['total']" color="indigo"
-                         @click="filter = 'all'" ::class="filter === 'all' ? 'ring-2 ring-indigo-500' : ''" />
-            <x-stat-card label="Aktuell" :value="$counts['ok']" color="green"
-                         @click="filter = 'ok'" ::class="filter === 'ok' ? 'ring-2 ring-green-500' : ''" />
-            <x-stat-card label="Updates" :value="$counts['updates']" color="yellow"
-                         @click="filter = 'updates'" ::class="filter === 'updates' ? 'ring-2 ring-yellow-500' : ''" />
-            <x-stat-card label="Sicherheit" :value="$counts['security']" color="red"
-                         @click="filter = 'security'" ::class="filter === 'security' ? 'ring-2 ring-red-500' : ''" />
-            <x-stat-card label="Keine Meldung" :value="$counts['stale']" color="gray"
-                         @click="filter = 'stale'" ::class="filter === 'stale' ? 'ring-2 ring-gray-400' : ''" />
-        </div>
+    {{-- Summary Cards --}}
+    @php
+        $filterParams = array_filter([
+            'search' => $activeFilters['search'] ?: null,
+            'tags'   => !empty($activeFilters['tags']) ? $activeFilters['tags'] : null,
+        ]);
+    @endphp
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+        <x-stat-card label="Gesamt" :value="$counts['total']" color="indigo"
+                     :href="route('dashboard', array_merge($filterParams, ['status' => 'all']))"
+                     :active="$activeFilters['status'] === 'all'" />
+        <x-stat-card label="Aktuell" :value="$counts['ok']" color="green"
+                     :href="route('dashboard', array_merge($filterParams, ['status' => 'ok']))"
+                     :active="$activeFilters['status'] === 'ok'" />
+        <x-stat-card label="Updates" :value="$counts['updates']" color="yellow"
+                     :href="route('dashboard', array_merge($filterParams, ['status' => 'updates']))"
+                     :active="$activeFilters['status'] === 'updates'" />
+        <x-stat-card label="Sicherheit" :value="$counts['security']" color="red"
+                     :href="route('dashboard', array_merge($filterParams, ['status' => 'security']))"
+                     :active="$activeFilters['status'] === 'security'" />
+        <x-stat-card label="Keine Meldung" :value="$counts['stale']" color="gray"
+                     :href="route('dashboard', array_merge($filterParams, ['status' => 'stale']))"
+                     :active="$activeFilters['status'] === 'stale'" />
+    </div>
 
-        {{-- Search --}}
-        <div class="mb-4">
-            <input type="text" x-model="search" placeholder="Hostname suchen..."
-                   class="w-full sm:w-80 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-        </div>
+    {{-- Search --}}
+    <form method="GET" action="{{ route('dashboard') }}" class="mb-4 flex flex-col sm:flex-row gap-3">
+        @if($activeFilters['status'] !== 'all')
+            <input type="hidden" name="status" value="{{ $activeFilters['status'] }}">
+        @endif
+        @foreach($activeFilters['tags'] as $tagId)
+            <input type="hidden" name="tags[]" value="{{ $tagId }}">
+        @endforeach
 
-        {{-- Machine Table --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            @if($machines->isEmpty())
-                <div class="p-12 text-center text-gray-500">
-                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z" />
-                    </svg>
-                    <p class="text-lg font-medium">Noch keine Maschinen registriert</p>
-                    <p class="mt-1 text-sm">Maschinen werden automatisch beim ersten Update-Report registriert.</p>
-                </div>
-            @else
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hostname</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updates</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Letzter Check</th>
-                            </tr>
-                        </thead>
-                        <tbody x-ref="machineRows" class="bg-white divide-y divide-gray-200">
-                            @foreach($machines as $machine)
-                                <tr data-status="{{ $machine->status->value }}"
-                                    data-hostname="{{ strtolower($machine->hostname) }}"
-                                    x-show="(filter === 'all' || '{{ $machine->status->value }}' === filter) && (search === '' || '{{ strtolower($machine->hostname) }}'.includes(search.toLowerCase()))"
-                                    class="hover:bg-gray-50 cursor-pointer transition"
-                                    onclick="window.location='{{ route('machines.show', $machine) }}'">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <x-status-badge :status="$machine->status" />
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">{{ $machine->display_name ?? $machine->hostname }}</div>
-                                        @if($machine->display_name)
-                                            <div class="text-xs text-gray-500">{{ $machine->hostname }}</div>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="text-sm font-semibold {{ $machine->total_updates > 0 ? ($machine->has_security ? 'text-red-600' : 'text-yellow-600') : 'text-green-600' }}">
-                                            {{ $machine->total_updates }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
-                                        @if($machine->last_report_at)
-                                            <span title="{{ $machine->last_report_at->format('d.m.Y H:i:s') }}">
-                                                {{ $machine->last_report_at->diffForHumans() }}
-                                            </span>
-                                        @else
-                                            <span class="text-gray-400">-</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+        <input type="text" name="search" value="{{ $activeFilters['search'] }}"
+               placeholder="Hostname suchen..."
+               class="w-full sm:w-80 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+        <button type="submit"
+                class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition">
+            Suchen
+        </button>
+
+        @if($activeFilters['search'] !== '')
+            <a href="{{ route('dashboard', array_filter([
+                'status' => $activeFilters['status'] !== 'all' ? $activeFilters['status'] : null,
+                'tags'   => !empty($activeFilters['tags']) ? $activeFilters['tags'] : null,
+            ])) }}"
+               class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition text-center">
+                Zurücksetzen
+            </a>
+        @endif
+    </form>
+
+    {{-- Tag Filter --}}
+    @if($allTags->isNotEmpty())
+        <div class="mb-4 flex flex-wrap items-center gap-2">
+            <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Tags:</span>
+            @foreach($allTags as $tag)
+                @php
+                    $isActive = in_array($tag->id, $activeFilters['tags']);
+                    $newTags = $isActive
+                        ? array_values(array_diff($activeFilters['tags'], [$tag->id]))
+                        : array_merge($activeFilters['tags'], [$tag->id]);
+                    $params = array_filter([
+                        'status' => $activeFilters['status'] !== 'all' ? $activeFilters['status'] : null,
+                        'search' => $activeFilters['search'] ?: null,
+                        'tags'   => !empty($newTags) ? $newTags : null,
+                    ]);
+                @endphp
+                <a href="{{ route('dashboard', $params) }}"
+                   class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold transition
+                          {{ $isActive ? $tag->badgeClasses() . ' ring-2 ring-offset-1 ' . $tag->ringClasses() : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+                    {{ $tag->name }}
+                </a>
+            @endforeach
+
+            @if(!empty($activeFilters['tags']))
+                <a href="{{ route('dashboard', array_filter([
+                    'status' => $activeFilters['status'] !== 'all' ? $activeFilters['status'] : null,
+                    'search' => $activeFilters['search'] ?: null,
+                ])) }}"
+                   class="inline-flex items-center px-2 py-1 text-xs text-gray-400 hover:text-gray-600 transition">
+                    Tags zurücksetzen &times;
+                </a>
             @endif
         </div>
+    @endif
+
+    {{-- Machine Table --}}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        @if($machines->isEmpty())
+            <div class="p-12 text-center text-gray-500">
+                <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z" />
+                </svg>
+                @if($activeFilters['status'] !== 'all' || $activeFilters['search'] !== '' || !empty($activeFilters['tags']))
+                    <p class="text-lg font-medium">Keine Maschinen gefunden</p>
+                    <p class="mt-1 text-sm">Versuche die Filter anzupassen.</p>
+                    <a href="{{ route('dashboard') }}" class="inline-block mt-3 text-sm text-indigo-600 hover:text-indigo-800">Alle Filter zurücksetzen</a>
+                @else
+                    <p class="text-lg font-medium">Noch keine Maschinen registriert</p>
+                    <p class="mt-1 text-sm">Maschinen werden automatisch beim ersten Update-Report registriert.</p>
+                @endif
+            </div>
+        @else
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hostname</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Tags</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updates</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Letzter Check</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach($machines as $machine)
+                            <tr class="hover:bg-gray-50 cursor-pointer transition"
+                                onclick="window.location='{{ route('machines.show', $machine) }}'">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <x-status-badge :status="$machine->status" />
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">{{ $machine->display_name ?? $machine->hostname }}</div>
+                                    @if($machine->display_name)
+                                        <div class="text-xs text-gray-500">{{ $machine->hostname }}</div>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach($machine->tags as $tag)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $tag->badgeClasses() }}">
+                                                {{ $tag->name }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm font-semibold {{ $machine->total_updates > 0 ? ($machine->has_security ? 'text-red-600' : 'text-yellow-600') : 'text-green-600' }}">
+                                        {{ $machine->total_updates }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
+                                    @if($machine->last_report_at)
+                                        <span title="{{ $machine->last_report_at->format('d.m.Y H:i:s') }}">
+                                            {{ $machine->last_report_at->diffForHumans() }}
+                                        </span>
+                                    @else
+                                        <span class="text-gray-400">-</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Pagination + Page Size --}}
+            @if($machines->hasPages() || $machines->total() > 5)
+                <div class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="w-full sm:w-auto">
+                        {{ $machines->links() }}
+                    </div>
+
+                    <div x-data="{ perPage: {{ $activeFilters['per_page'] }} }" class="flex items-center gap-2 shrink-0">
+                        <label for="per_page" class="text-sm text-gray-600 whitespace-nowrap">Pro Seite:</label>
+                        <select id="per_page" x-model="perPage"
+                                @change="
+                                    document.cookie = 'dashboard_per_page=' + perPage + ';path=/;max-age=31536000;SameSite=Lax';
+                                    const url = new URL(window.location);
+                                    url.searchParams.set('per_page', perPage);
+                                    url.searchParams.delete('page');
+                                    window.location = url.toString();
+                                "
+                                class="rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            @foreach([10, 20, 50, 100] as $size)
+                                <option value="{{ $size }}" {{ $activeFilters['per_page'] == $size ? 'selected' : '' }}>
+                                    {{ $size }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            @endif
+        @endif
     </div>
 </x-app-layout>

@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\MachineController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\EnsureIsAdmin;
@@ -26,6 +27,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Machine detail
     Route::get('/machines/{machine}', [MachineController::class, 'show'])->name('machines.show');
     Route::get('/machines/{machine}/report/{reportId}', [MachineController::class, 'show'])->name('machines.report');
+    Route::post('/machines/{machine}/tags', [MachineController::class, 'attachTag'])->name('machines.tags.attach');
+    Route::delete('/machines/{machine}/tags', [MachineController::class, 'detachTag'])->name('machines.tags.detach');
+
+    // Tags
+    Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
+    Route::delete('/tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
